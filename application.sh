@@ -9,4 +9,6 @@ from application import  main
 
 app = main.Application()
 app.master.title('Sample application')
+app.master.minsize(820, 480)
+app.master.maxsize(820, 480)
 app.mainloop()
