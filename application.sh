@@ -33,7 +33,7 @@ from application import main
 
 #client.disconnect()
 
-app = main.Application(None,"ws://localhost:8080/ssc/prenostazione-risorse/websocket","/info")
+app = main.Application(None,"ws://192.168.2.133:8080/ssc/prenostazione-risorse/websocket","/info")
 app.master.title('SSC')
 app.master.minsize(820, 480)
 app.master.maxsize(820, 480)
