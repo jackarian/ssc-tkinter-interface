@@ -13,15 +13,20 @@ class Application(ttk.Frame):
         self.createWidgets()
 
     def createWidgets(self):
-        self.quitButton = ttk.Button(self, text='Test connection to service', command=self.connect)
-        self.quitButton.grid(column=3, row=2)
-        self.ok = ttk.Button(self, text="Okay")
-        self.ok.grid(column=4, row=2)
-        self.cancel = ttk.Button(self, text="Cancel")
+        self.titlelbl = ttk.Label(self, text="Title")
+        self.titlelbl.grid(column=3, row=1)
+        self.body = ttk.Label(self, text="Body")
+        self.body.grid(column=3, row=2)
+        self.connectBtn = ttk.Button(self, text='Test connection to service', command=self.connect)
+        self.connectBtn.grid(column=3, row=4)
+
+        self.quitBtn = ttk.Button(self, text="Quit", command=self.quit)
+        self.quitBtn.grid(column=4, row=4)
 
     def connect(self):
-        self.client.connect()
-        self.client.subscribe(self.topic, callback=self.onReceiveMessage)
+        if not self.client.connected:
+          self.client.connect()
+          self.client.subscribe(self.topic, callback=self.onReceiveMessage)
 
     def onReceiveMessage(self, frame):
         message = json.loads(frame.body)

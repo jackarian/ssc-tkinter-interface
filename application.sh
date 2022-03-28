@@ -10,6 +10,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 #from stomp_ws.client import Client
 #import logging
+
 from application import main
 
 #def print_frame(frame):

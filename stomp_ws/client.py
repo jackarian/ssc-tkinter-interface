@@ -41,7 +41,7 @@ class Client:
             if 0 < timeout < total_ms:
                 raise TimeoutError(f"Connection to {self.url} timed out")
 
-    def _on_open(self, ws):
+    def _on_open(self):
         # self.ws.send("CONNECT\naccept-version:1.0,1.1,2.0\n\n\x00\n")
         self.opened = True
 
@@ -53,7 +53,7 @@ class Client:
     def _on_error(self, ws, error):
         logging.debug(error)
 
-    def _on_message(self, ws=None, message=None):
+    def _on_message(self,message=None):
         logging.debug("\n<<< " + str(message))
         frame = Frame.unmarshall_single(message)
         _results = []
