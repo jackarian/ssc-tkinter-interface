@@ -53,7 +53,7 @@ class Client:
     def _on_error(self, ws, error):
         logging.debug(error)
 
-    def _on_message(self,message=None):
+    def _on_message(self, message=None):
         logging.debug("\n<<< " + str(message))
         frame = Frame.unmarshall_single(message)
         _results = []
