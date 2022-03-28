@@ -10,30 +10,48 @@ class Application(ttk.Frame):
         self.grid(column=0, row=0)
         self.client = Client(ws_uri)
         self.topic = topic
-        self.createWidgets()
+        self.frame = ttk.Frame(self, borderwidth=1, relief="ridge", width=820, height=400)
 
-    def createWidgets(self):
-        self.titlelbl = ttk.Label(self, text="Title")
-        self.titlelbl.grid(column=3, row=1)
-        self.body = ttk.Label(self, text="Body")
-        self.body.grid(column=3, row=2)
-        self.connectBtn = ttk.Button(self, text='Test connection to service', command=self.connect)
-        self.connectBtn.grid(column=3, row=4)
+        self.createWidgets(self.frame)
+        self.connected = FALSE
 
-        self.quitBtn = ttk.Button(self, text="Quit", command=self.quit)
-        self.quitBtn.grid(column=4, row=4)
+    def createWidgets(self, frame):
+
+        frame.place(x=0, y=0, width=810, height=400)
+        self.titlelbl = ttk.Label(frame, text="Title")
+        self.titlelbl.grid(column=10, row=1, columnspan=50)
+
+        self.bodylbl = ttk.Label(frame, text="Body")
+        self.bodylbl.grid(column=0, row=2, columnspan=50)
+
+        self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)
+        self.connectBtn.place(x=80, y=401)
+
+        self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
+        self.quitBtn.place(x=0, y=401)
 
     def connect(self):
         if not self.client.connected:
-          self.client.connect()
-          self.client.subscribe(self.topic, callback=self.onReceiveMessage)
+            self.client.connect(connectCallback=self.onConnected)
+            self.client.subscribe(self.topic, callback=self.onReceiveMessage)
+
+    def close(self):
+        if self.connected:
+            self.client.disconnect()
+
+        self.quit()
 
     def onReceiveMessage(self, frame):
         message = json.loads(frame.body)
-        print("Tipo messaggio: %s" % message['type'])
-        print("Titolo messaggio: %s" % message['title'])
-        print("Body messaggio: %s" % message['body'])
-        print("Sorgente messaggio: %s" % message['plc_source'])
+        # print("Tipo messaggio: %s" % message['type'])
+        # print("Titolo messaggio: %s" % message['title'])
+        self.titlelbl['text'] = message['title']
+        # print("Body messaggio: %s" % message['body'])
+        self.bodylbl['text'] = message['body']
+        # print("Sorgente messaggio: %s" % message['plc_source'])
+
+    def onConnected(self, frame):
+        self.connected = TRUE
 
 
 if __name__ == '__main__':
