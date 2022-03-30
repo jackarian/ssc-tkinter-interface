@@ -1,2 +1,4 @@
 /.project
 /test.py
+*.pyc
+__pycache__/
