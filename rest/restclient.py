@@ -23,9 +23,10 @@ class SscClient:
         return requests.get(self.host + '/api/plc')
 
     def sendPayload(self, token=None, plc=None):
+
         payload: str = json.dumps({
             "MID": 1,
-            "UID": 12321277,
+            "UID": plc,
             "MV": "1",
             "ST": 1,
             "FIFO": [
@@ -41,12 +42,19 @@ class SscClient:
         })
 
         response = requests.request("POST", self.host + '/activation', headers=self.header, data=payload)
+
         return response
 
 
 if __name__ == '__main__':
     client = SscClient('http://localhost:8080/ssc')
-    response = client.getPlc()
-    payload = response.json()
-    for resource in payload['result']: print(resource)
-    client.sendPayload()
+    try:
+        response = client.getPlc()
+        payload = response.json()
+        for resource in payload['result']: print(resource)
+
+    except Exception as e:
+
+        print('Connection error %s' % e)
+
+    # client.sendPayload()

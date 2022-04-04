@@ -10,7 +10,7 @@ VERSIONS = '1.0,1.1'
 
 class Client:
 
-    def __init__(self, url):
+    def __init__(self, url, observer=None):
 
         self.url = url
         self.ws = websocket.WebSocketApp(self.url)
@@ -28,8 +28,14 @@ class Client:
 
         self._connectCallback = None
         self.errorCallback = None
+        self.observers = list()
+        if observer is not None:
+            self.addObserver(observer)
 
-    def _connect(self, timeout=0):
+    def addObserver(self, observer):
+        self.observers.append(observer)
+
+    def _connect(self, timeout=1000):
         thread = Thread(target=self.ws.run_forever)
         thread.daemon = True
         thread.start()
@@ -44,14 +50,20 @@ class Client:
     def _on_open(self, ws):
         # self.ws.send("CONNECT\naccept-version:1.0,1.1,2.0\n\n\x00\n")
         self.opened = True
+        for observer in self.observers:
+            observer.notifyOnOpen(ws)
 
-    def _on_close(self, websocket, close_status_code, close_msg):
+    def _on_close(self, ws, close_status_code, close_msg):
         self.connected = False
-        logging.debug("Whoops! Lost connection to " + self.ws.url)
+        # logging.debug("Whoops! Lost connection to " + self.ws.url)
         self._clean_up()
+        for observer in self.observers:
+            observer.notifyOnClose(ws)
 
     def _on_error(self, ws, error):
         logging.debug(error)
+        for observer in self.observers:
+            observer.notifyOnError(self,message=error)
 
     def _on_message(self, ws, message=None):
         logging.debug("\n<<< " + str(message))
@@ -109,22 +121,28 @@ class Client:
                 timeout=0):
 
         logging.debug("Opening web socket...")
-        self._connect(timeout)
+        try:
+            self._connect(timeout)
+        except TimeoutError as e:
+            if len(self.observers) > 0:
+                for observer in self.observers:
+                    observer.notifyOnError(self, message="Connection Timeout",
+                                           exception=TimeoutError(f"Connection to {self.url} timed out"))
+        else:
+            headers = headers if headers is not None else {}
+            headers['host'] = self.url
+            headers['accept-version'] = VERSIONS
+            headers['heart-beat'] = '10000,10000'
 
-        headers = headers if headers is not None else {}
-        headers['host'] = self.url
-        headers['accept-version'] = VERSIONS
-        headers['heart-beat'] = '10000,10000'
+            if login is not None:
+                headers['login'] = login
+            if passcode is not None:
+                headers['passcode'] = passcode
 
-        if login is not None:
-            headers['login'] = login
-        if passcode is not None:
-            headers['passcode'] = passcode
+            self._connectCallback = connectCallback
+            self.errorCallback = errorCallback
 
-        self._connectCallback = connectCallback
-        self.errorCallback = errorCallback
-
-        self._transmit('CONNECT', headers)
+            self._transmit('CONNECT', headers)
 
     def disconnect(self, disconnectCallback=None, headers=None):
         if headers is None:

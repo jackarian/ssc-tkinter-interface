@@ -4,15 +4,17 @@ from tkinter import Tk
 from tkinter import font
 from tkinter import messagebox
 import json
+from threading import Thread
 from stomp_ws.client import Client
+from interfaces import observer
 from application import img as images
 
 
-class Application(ttk.Frame):
+class Application(ttk.Frame, observer.ConnectionObserver):
     def __init__(self, master=None, ws_uri=None, topic=None, width=820, height=480):
         ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
         self.grid(column=0, row=0)
-        self.client = Client(ws_uri)
+        self.client = Client(ws_uri, self)
         self.topic = topic
         self.logo = PhotoImage(file=images.LOGO)
         self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
@@ -71,8 +73,12 @@ class Application(ttk.Frame):
 
     def connect(self):
         if not self.client.connected:
-            self.client.connect(connectCallback=self.onConnected)
-            self.client.subscribe(self.topic, callback=self.onReceiveMessage)
+            thread = Thread(target=self.client.connect,
+                            kwargs=
+                            {'connectCallback': self.onConnected, 'timeout': 10000})
+            thread.daemon = True
+            thread.start()
+            # self.client.connect(connectCallback=self.onConnected, timeout=10000)
 
     def close(self):
         if self.connected:
@@ -92,7 +98,18 @@ class Application(ttk.Frame):
     def onConnected(self, frame):
         self.connected = TRUE
         self.connectBtn.config(state=DISABLED)
+        self.client.subscribe(self.topic, callback=self.onReceiveMessage)
         messagebox.showinfo("Service", "Connection established")
+
+    def notifyOnClose(self, observable=None, message=None, exception=None):
+        print("notifyOnClose")
+
+    def notifyOnOpen(self, observable=None, message=None, exception=None):
+        print("notifyOnOpen")
+
+    def notifyOnError(self, observable=None, message=None, exception=None):
+        print("notifyOnError")
+        messagebox.showerror("Service", message)
 
 
 if __name__ == '__main__':
