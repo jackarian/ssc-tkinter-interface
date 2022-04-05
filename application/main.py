@@ -8,16 +8,18 @@ from threading import Thread
 from stomp_ws.client import Client
 from interfaces import observer
 from application import img as images
+from camera.controller import CameraController
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, width=820, height=480):
+    def __init__(self, master=None, ws_uri=None, topic=None, width=1024, height=780):
         ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
         self.grid(column=0, row=0)
         self.client = Client(ws_uri, self)
         self.topic = topic
         self.logo = PhotoImage(file=images.LOGO)
         self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
+        self.cameralbl = None
         master.iconphoto(True, self.logo)
         """
         Crete interface component 
@@ -28,6 +30,8 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self._createWidgets(self.frame, width - 10, height - 80)
         self.connected = FALSE
+
+        self.cam = CameraController(self.cameralbl)
 
     def _createWidgets(self, frame, width, height):
         self.logoLabel = ttk.Label(self,
@@ -62,6 +66,12 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.bodylbl.place(x=(width // 2) - (width // 4) - 100, y=100)
 
+        self.cameralbl = ttk.Label(frame,
+                                   width=width // 2,
+                                   )
+
+        self.cameralbl.place(x=(width // 2) - (width // 4) - 100, y=200)
+
         self._buildfooter(frame, width, height)
 
     def _buildfooter(self, frame, width, height):
@@ -70,6 +80,9 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
         self.quitBtn.place(x=0, y=height + 1)
+
+        self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
+        self.scanBtn.place(x=161, y=height + 1)
 
     def connect(self):
         if not self.client.connected:
@@ -84,6 +97,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         if self.connected:
             self.client.disconnect()
 
+        self.cam.onClose()
         self.quit()
 
     def onReceiveMessage(self, frame):
@@ -100,6 +114,9 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self.connectBtn.config(state=DISABLED)
         self.client.subscribe(self.topic, callback=self.onReceiveMessage)
         messagebox.showinfo("Service", "Connection established")
+
+    def scancode(self):
+        self.cam.startCapture()
 
     def notifyOnClose(self, observable=None, message=None, exception=None):
         print("notifyOnClose")
@@ -119,5 +136,5 @@ if __name__ == '__main__':
     app = Application(root, "ws://localhost:8080/ssc/prenostazione-risorse/websocket", "/info")
     root.title('SSC')
     root.minsize(820, 480)
-    root.maxsize(820, 480)
+    root.maxsize(1024, 780)
     app.mainloop()

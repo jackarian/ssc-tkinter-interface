@@ -30,9 +30,9 @@ class Client:
         self.errorCallback = None
         self.observers = list()
         if observer is not None:
-            self.addObserver(observer)
+            self.addobserver(observer)
 
-    def addObserver(self, observer):
+    def addobserver(self, observer):
         self.observers.append(observer)
 
     def _connect(self, timeout=1000):
