@@ -35,9 +35,7 @@ from application import main
 #client.disconnect()
 root = Tk()
 app = main.Application(root,
-                       "ws://192.168.2.133:8080/ssc/prenostazione-risorse/websocket",
-                       "/info",820, 480)
+                       "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
+                       "/info",1366, 768)
 root.title('SSC')
-root.minsize(820, 480)
-root.maxsize(1024, 768)
 app.mainloop()

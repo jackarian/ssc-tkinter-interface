@@ -1,6 +1,8 @@
 import requests
 import json
 
+from requests import Response
+
 
 class SscClient:
     def __init__(self, host):
@@ -41,7 +43,7 @@ class SscClient:
             ]
         })
 
-        response = requests.request("POST", self.host + '/activation', headers=self.header, data=payload)
+        response: Response = requests.request("POST", self.host + '/activation', headers=self.header, data=payload)
 
         return response
 

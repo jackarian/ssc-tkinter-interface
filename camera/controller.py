@@ -26,7 +26,7 @@ class CameraController:
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cap = cv.VideoCapture(self.pipe)
+        self.cap = cv.VideoCapture(0)
         self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame
@@ -61,7 +61,6 @@ class CameraController:
                     code = data
                     self.stopEvent.set()
                     frame = self.rescale_frame(frame, 50)
-
                     image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
                     image = Image.fromarray(image)
                     image = ImageTk.PhotoImage(image)

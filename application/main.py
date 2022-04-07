@@ -12,17 +12,18 @@ from camera.controller import CameraController
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, width=1024, height=780):
+    def __init__(self, master=None, ws_uri=None, topic=None, width=1366, height=780):
         ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
         self.grid(column=0, row=0)
         self.client = Client(ws_uri, self)
         self.topic = topic
         self.logo = PhotoImage(file=images.LOGO)
         self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
+        self.logoMultiverso = PhotoImage(file=images.LOGO_MULTIVERSO)
         self.cameralbl = None
         master.iconphoto(True, self.logo)
         """
-        Crete interface component 
+        Create interface component 
         """
         self.frame = ttk.Frame(self, borderwidth=1, relief="ridge", width=width, height=height - 20)
         self.highlightFont = font.Font(family='Helvetica', name='appHighlightFont', size=16, weight='bold')
@@ -35,10 +36,9 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
     def _createWidgets(self, frame, width, height):
         self.logoLabel = ttk.Label(self,
-                                   text="",
-                                   image=self.logoLepark,
+                                   image=self.logoMultiverso,
                                    compound=LEFT)
-        self.logoLabel.place(x=0, y=0)
+        self.logoLabel.place(x=2, y=2)
         frame.place(x=1, y=1, width=width, height=height)
 
         # Create the application variable.
@@ -51,18 +51,15 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self.titlelbl = ttk.Label(frame, width=width // 2,
                                   textvariable=self.titleText,
                                   justify='center',
-                                  font=self.highlightFont,
-                                  background="#FFF",
-                                  foreground="red")
+                                  font=self.highlightFont)
+
         self.titlelbl.place(x=(width // 2) - (width // 4), y=10)
 
         self.bodylbl = ttk.Label(frame,
                                  width=width // 2,
                                  textvariable=self.bodyText,
                                  justify='center',
-                                 font=self.bodyFont,
-                                 background="#FEF",
-                                 foreground="red")
+                                 font=self.bodyFont)
 
         self.bodylbl.place(x=(width // 2) - (width // 4) - 100, y=100)
 
@@ -133,8 +130,6 @@ if __name__ == '__main__':
     root = Tk()
     icon = PhotoImage(file=images.LOGO)
     root.iconphoto(True, icon)
-    app = Application(root, "ws://localhost:8080/ssc/prenostazione-risorse/websocket", "/info")
+    app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket", "/info", 1366, 768)
     root.title('SSC')
-    root.minsize(820, 480)
-    root.maxsize(1024, 780)
     app.mainloop()
