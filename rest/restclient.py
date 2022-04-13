@@ -5,8 +5,9 @@ from requests import Response
 
 
 class SscClient:
-    def __init__(self, host):
+    def __init__(self, host, plc):
         self.host = host
+        self.plc = plc
         self.header = self.getHeader()
 
     @staticmethod
@@ -24,11 +25,11 @@ class SscClient:
     def getPlc(self):
         return requests.get(self.host + '/api/plc')
 
-    def sendPayload(self, token=None, plc=None):
+    def sendPayload(self, token=None):
 
         payload: str = json.dumps({
             "MID": 1,
-            "UID": plc,
+            "UID": self.plc,
             "MV": "1",
             "ST": 1,
             "FIFO": [
@@ -37,7 +38,7 @@ class SscClient:
                     "Value": {
                         "ip_address": "10.10.0.156",
                         "timeStamp": " ",
-                        "token": "5d77da6bb0fd477a991fcd7ea9ba06436969168536505048"
+                        "token": ""+token+""
                     }
                 }
             ]

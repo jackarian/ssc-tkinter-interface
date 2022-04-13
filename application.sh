@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import sys
 import os
-from tkinter import *
+
+from tkinter import Tk
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-
+from pathlib import Path
+home = str(Path.home())
 #import json
 #import time
 
@@ -36,6 +38,7 @@ from application import main
 root = Tk()
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
+                       "http://service.local:8080/ssc",
                        "/info",1366, 768)
 root.title('SSC')
 app.mainloop()

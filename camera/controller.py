@@ -3,20 +3,21 @@ import threading
 import time
 import numpy as np
 import cv2 as cv
-import PIL
 from PIL import ImageTk, Image
+from rest.restclient import SscClient
 
 
 class CameraController:
-    def __init__(self, label=None):
+    def __init__(self, label=None, controller=None):
         self.thread = None
         self.stopEvent = None
         self.frame = None
         self.panel = label
-        self.pipe = "libcamerasrc ! video/x-raw, width=640, height=480, framerate=50/1 ! videoconvert ! videoscale ! " \
+        self.pipe = "libcamerasrc ! video/x-raw, width=640, height=480, framerate=30/1 ! videoconvert ! videoscale ! " \
                     "appsink "
         self.cap = None
         self.detector = None
+        self.controller: SscClient = controller
 
     @staticmethod
     def rescale_frame(frame, percent=75):
@@ -65,6 +66,7 @@ class CameraController:
                     image = Image.fromarray(image)
                     image = ImageTk.PhotoImage(image)
                     self.panel.configure(image=image)
+                    self.controller.sendPayload(data)
 
             self.cap.release()
             cv.destroyAllWindows()
