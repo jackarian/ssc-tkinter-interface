@@ -38,7 +38,7 @@ from application import main
 root = Tk()
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
-                       "http://service.local:8080/ssc",
-                       "/info",1366, 768)
+                       "/info",
+                        "http://service.local:8080/ssc",1366, 768)
 root.title('SSC')
 app.mainloop()
