@@ -9,7 +9,7 @@ from threading import Thread
 from stomp_ws.client import Client
 from interfaces import observer
 from application import img as images
-from camera.controller import CameraController
+# from camera.controller import CameraController
 from rest.restclient import SscClient
 from pathlib import Path
 
