@@ -26,6 +26,12 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
         self.logoMultiverso = PhotoImage(file=images.LOGO_MULTIVERSO)
         self.cameralbl = None
+        self.canvas = None
+        self.messageType = {
+            0: '#FC1919',
+            1: '#2981c3',
+            2: '#2981c3'
+        }
         master.iconphoto(True, self.logo)
         """
         Create interface component 
@@ -35,11 +41,29 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self.subheaderFont = font.Font(family='Helvetica', name='subHighlightFont', size=20, weight='bold')
         self.bodyFont = font.Font(family='Helvetica', name='appBodyFont', size=18, weight='bold')
 
-        self._createWidgets(self.frame, width - 10, height - 80)
+        self._createHeader(self.frame, width - 10, height - 80)
+        self._createCanvas(self.frame, width - 10, height - 80)
+        # self._createWidgets(self.frame, width - 10, height - 80)
         self.connected = FALSE
 
-        self.cam = CameraController(self.cameralbl, self.sscClient)
+        #  self.cam = CameraController(self.cameralbl, self.sscClient)
         self._createBinding()
+
+    def _createCanvas(self, frame, width, height, start=100):
+        self.cwidth = width - 10
+        self.cheight = height - 10
+        self.canvas = Canvas(frame, width=self.cwidth / 2, height=self.cheight)
+        self.canvas.place(x=width // 2 - (self.cwidth // 4), y=start + 200)
+        print(' Width  canvas: %s' % (self.cwidth / 2))
+        print('Width sub  %s: ' % ((self.cwidth / 2 - 10) / 2))
+        xpos = (self.cwidth / 2) - ((self.cwidth / 2 - 10) / 2)
+        print(' Text position inside canvas: %s' % xpos)
+        self.cMessageTitle = self.canvas.create_text(xpos, 20,
+                                                     width=self.cwidth / 2 - 10,
+                                                     font='appBodyFont', fill='#2981c3', justify='center')
+        self.cMessageBody = self.canvas.create_text(xpos, 100,
+                                                    width=self.cwidth / 2 - 10,
+                                                    font='appBodyFont', fill='#2981c3', justify='center')
 
     def _createBinding(self):
 
@@ -47,10 +71,8 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self.master.bind('<Control-Left>', lambda e: self.close())
         self.master.bind('<Control-Down>', lambda e: self.scancode())
 
-    def _createWidgets(self, frame, width, height):
-
+    def _createHeader(self, frame, width, height, start=100):
         frame.place(x=1, y=1, width=width, height=height)
-        start = 100
         self.logoLabel = ttk.Label(self,
                                    image=self.logoMultiverso,
                                    compound=LEFT)
@@ -62,13 +84,6 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.sheader = StringVar()
         self.sheader.set(self.config['subheader']['text'])
-
-        self.titleText = StringVar()
-        self.titleText.set("")
-        # Set it to some value.
-        self.bodyText = StringVar()
-        self.bodyText.set("")
-
         self.headerlbl = ttk.Label(frame, width=width // 2,
                                    textvariable=self.header,
                                    justify='center',
@@ -85,6 +100,15 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.sheaderlbl.place(x=(width // 2) - self.subheaderFont.measure(self.config['subheader']['text']) // 2,
                               y=start + 100)
+
+    def _createWidgets(self, frame, width, height, start=100):
+
+        self.titleText = StringVar()
+        self.titleText.set("")
+
+        # Set it to some value.
+        self.bodyText = StringVar()
+        self.bodyText.set("")
 
         self.titlelbl = ttk.Label(frame, width=width // 2,
                                   textvariable=self.titleText,
@@ -152,9 +176,14 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         message = json.loads(frame.body)
         # print("Tipo messaggio: %s" % message['type'])
         # print("Titolo messaggio: %s" % message['title'])
-        self.titleText.set(message['title'])
+        # self.titleText.set(message['title'])
+        self.canvas.itemconfigure(self.cMessageTitle, fill=self.messageType[message['type']])
+        self.canvas.itemconfigure(self.cMessageTitle, text=message['title'])
         # print("Body messaggio: %s" % message['body'])
-        self.bodyText.set(message['body'])
+        # self.bodyText.set(message['body'])
+        self.bodyFont.measure(message['body'])
+        self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
+        self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
         # print("Sorgente messaggio: %s" % message['plc_source'])
 
     def onConnected(self, frame):
@@ -172,10 +201,11 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         # self.connectBtn.config(state=ACTIVE)
 
     def notifyOnOpen(self, observable=None, message=None, exception=None):
-        print("notifyOnOpen")
+        # print("notifyOnOpen")
+        pass
 
     def notifyOnError(self, observable=None, message=None, exception=None):
-        print("notifyOnError")
+        # print("notifyOnError")
         messagebox.showerror("Service", message)
         self.connected = FALSE
         # self.connectBtn.config(state=ACTIVE)
