@@ -48,6 +48,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         #  self.cam = CameraController(self.cameralbl, self.sscClient)
         self._createBinding()
+        self.connect()
 
     def _createCanvas(self, frame, width, height, start=100):
         self.cwidth = width - 10
