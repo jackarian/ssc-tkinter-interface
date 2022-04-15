@@ -169,7 +169,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         if self.connected:
             self.client.disconnect()
 
-        self.cam.onClose()
+        # self.cam.onClose()
         self.quit()
 
     def onReceiveMessage(self, frame):
@@ -193,7 +193,8 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         messagebox.showinfo("Service", "Connection established")
 
     def scancode(self):
-        self.cam.startCapture()
+        # self.cam.startCapture()
+        pass
 
     def notifyOnClose(self, observable=None, message=None, exception=None):
         print("notifyOnClose")
