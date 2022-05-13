@@ -9,7 +9,7 @@ from threading import Thread
 from stomp_ws.client import Client
 from interfaces import observer
 from application import img as images
-# from camera.controller import CameraController
+from camera.controller import CameraController
 from rest.restclient import SscClient
 from pathlib import Path
 
@@ -46,19 +46,18 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         # self._createWidgets(self.frame, width - 10, height - 80)
         self.connected = FALSE
 
-        #  self.cam = CameraController(self.cameralbl, self.sscClient)
+        self.cam = CameraController(self.cameralbl, self.sscClient)
         self._createBinding()
-        self.connect()
 
     def _createCanvas(self, frame, width, height, start=100):
         self.cwidth = width - 10
         self.cheight = height - 10
         self.canvas = Canvas(frame, width=self.cwidth / 2, height=self.cheight)
         self.canvas.place(x=width // 2 - (self.cwidth // 4), y=start + 200)
-        print(' Width  canvas: %s' % (self.cwidth / 2))
-        print('Width sub  %s: ' % ((self.cwidth / 2 - 10) / 2))
+        # print(' Width  canvas: %s' % (self.cwidth / 2))
+        # print('Width sub  %s: ' % ((self.cwidth / 2 - 10) / 2))
         xpos = (self.cwidth / 2) - ((self.cwidth / 2 - 10) / 2)
-        print(' Text position inside canvas: %s' % xpos)
+        # print(' Text position inside canvas: %s' % xpos)
         self.cMessageTitle = self.canvas.create_text(xpos, 20,
                                                      width=self.cwidth / 2 - 10,
                                                      font='appBodyFont', fill='#2981c3', justify='center')
@@ -164,28 +163,21 @@ class Application(ttk.Frame, observer.ConnectionObserver):
                             {'connectCallback': self.onConnected, 'timeout': 10000})
             thread.daemon = True
             thread.start()
-            # self.client.connect(connectCallback=self.onConnected, timeout=10000)
 
     def close(self):
         if self.connected:
             self.client.disconnect()
 
-        # self.cam.onClose()
+        self.cam.onClose()
         self.quit()
 
     def onReceiveMessage(self, frame):
         message = json.loads(frame.body)
-        # print("Tipo messaggio: %s" % message['type'])
-        # print("Titolo messaggio: %s" % message['title'])
-        # self.titleText.set(message['title'])
         self.canvas.itemconfigure(self.cMessageTitle, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageTitle, text=message['title'])
-        # print("Body messaggio: %s" % message['body'])
-        # self.bodyText.set(message['body'])
         self.bodyFont.measure(message['body'])
         self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
-        # print("Sorgente messaggio: %s" % message['plc_source'])
 
     def onConnected(self, frame):
         self.connected = TRUE
@@ -194,11 +186,10 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         messagebox.showinfo("Service", "Connection established")
 
     def scancode(self):
-        # self.cam.startCapture()
+        self.cam.startCapture()
         pass
 
     def notifyOnClose(self, observable=None, message=None, exception=None):
-        print("notifyOnClose")
         self.connected = FALSE
         # self.connectBtn.config(state=ACTIVE)
 
@@ -207,7 +198,6 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         pass
 
     def notifyOnError(self, observable=None, message=None, exception=None):
-        # print("notifyOnError")
         messagebox.showerror("Service", message)
         self.connected = FALSE
         # self.connectBtn.config(state=ACTIVE)

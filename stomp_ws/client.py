@@ -63,7 +63,7 @@ class Client:
     def _on_error(self, ws, error):
         logging.debug(error)
         for observer in self.observers:
-            observer.notifyOnError(self,message=error)
+            observer.notifyOnError(self, message=error)
 
     def _on_message(self, ws, message=None):
         logging.debug("\n<<< " + str(message))
