@@ -175,7 +175,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         message = json.loads(frame.body)
         self.canvas.itemconfigure(self.cMessageTitle, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageTitle, text=message['title'])
-        self.bodyFont.measure(message['body'])
+
         self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
 

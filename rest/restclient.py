@@ -25,7 +25,7 @@ class SscClient:
     def getPlc(self):
         return requests.get(self.host + '/api/plc')
 
-    def sendPayload(self, token=None):
+    def sendPayload(self, token=None, plc=None):
 
         payload: str = json.dumps({
             "MID": 1,
@@ -50,7 +50,7 @@ class SscClient:
 
 
 if __name__ == '__main__':
-    client = SscClient('http://localhost:8080/ssc')
+    client = SscClient('http://localhost:8080/ssc', 9900001)
     try:
         response = client.getPlc()
         payload = response.json()
