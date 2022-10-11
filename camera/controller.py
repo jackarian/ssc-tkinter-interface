@@ -24,13 +24,14 @@ class CameraController:
         self.cap = None
         self.detector = None
         self.factory = PiGPIOFactory(host='192.168.178.45')
-        self.red   = LED(19,pin_factory=self.factory)
-        self.green = LED(26,pin_factory=self.factory)
+        self.red = LED(19, pin_factory=self.factory)
+        self.green = LED(26, pin_factory=self.factory)
         self.i2c = busio.I2C(board.SCL, board.SDA)
         self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
         self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
         self.startCapture()
+
     @staticmethod
     def rescale_frame(frame, percent=75):
         width = int(frame.shape[1] * percent / 100)
@@ -60,7 +61,7 @@ class CameraController:
                 ret, frame = self.cap.read()
                 if self.sensor.range < 1000:
                     self.red.on()
-                    
+
                     # if frame is read correctly ret is True
                     if not ret:
                         print("Can't receive frame (stream end?). Exiting ...")
@@ -69,7 +70,7 @@ class CameraController:
                     data, bbox, _ = self.detector.detectAndDecode(frame)
                     # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
                     # Display the resulting frame
-                    #if bbox is not None:
+                    # if bbox is not None:
                     #    cv.putText(frame, data, (int(bbox[0][0][0]), int(bbox[0][0][1]) - 10), cv.FONT_HERSHEY_SIMPLEX,
                     #               0.5, (0, 255, 0), 2)
 
@@ -88,7 +89,7 @@ class CameraController:
                         self.green.off()
                 else:
                     self.red.off()
-                    
+
             self.cap.release()
             cv.destroyAllWindows()
             self.cap = None
