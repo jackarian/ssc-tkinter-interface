@@ -21,7 +21,7 @@ class CameraController:
                     "appsink "
         self.cap = None
         self.detector = None
-        self.factory = PiGPIOFactory(host='192.168.178.45')
+        self.factory = PiGPIOFactory(host='192.168.178.59')
         self.red = LED(19, pin_factory=self.factory)
         self.green = LED(26, pin_factory=self.factory)
         self.i2c = busio.I2C(board.SCL, board.SDA)
