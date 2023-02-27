@@ -26,7 +26,6 @@ class SscClient:
         return requests.get(self.host + '/api/plc')
 
     def sendPayload(self, token=None, plc=None):
-
         payload: str = json.dumps({
             "MID": 1,
             "UID": self.plc,
@@ -38,7 +37,7 @@ class SscClient:
                     "Value": {
                         "ip_address": "10.10.0.156",
                         "timeStamp": " ",
-                        "token": ""+token+""
+                        "token": "" + token + ""
                     }
                 }
             ]

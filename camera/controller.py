@@ -1,16 +1,14 @@
-import sys
 import threading
+from time import sleep
+
+import adafruit_vl53l0x
 import board
 import busio
-import adafruit_vl53l0x
-import time
-from time import sleep
-import numpy as np
 import cv2 as cv
-from PIL import ImageTk, Image
-from rest.restclient import SscClient
 from gpiozero import LED
 from gpiozero.pins.pigpio import PiGPIOFactory
+
+from rest.restclient import SscClient
 
 
 class CameraController:
