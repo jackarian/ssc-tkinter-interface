@@ -2,7 +2,7 @@ import threading
 from time import sleep
 
 import adafruit_vl53l0x
-import board
+
 import busio
 import cv2 as cv
 from gpiozero import LED
@@ -24,7 +24,7 @@ class CameraController:
         self.factory = PiGPIOFactory(host='192.168.178.59')
         self.red = LED(19, pin_factory=self.factory)
         self.green = LED(26, pin_factory=self.factory)
-        self.i2c = busio.I2C(board.SCL, board.SDA)
+        ## self.i2c = busio.I2C(board.SCL, board.SDA)
         self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
         self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
@@ -57,36 +57,32 @@ class CameraController:
                 # grab the frame from the video stream and resize it to
                 # have a maximum width of 300 pixels
                 ret, frame = self.cap.read()
-                if self.sensor.range < 1000:
-                    self.red.on()
 
-                    # if frame is read correctly ret is True
-                    if not ret:
-                        print("Can't receive frame (stream end?). Exiting ...")
-                        break
-                        # Our operations on the frame come here
-                    data, bbox, _ = self.detector.detectAndDecode(frame)
-                    # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-                    # Display the resulting frame
-                    # if bbox is not None:
-                    #    cv.putText(frame, data, (int(bbox[0][0][0]), int(bbox[0][0][1]) - 10), cv.FONT_HERSHEY_SIMPLEX,
-                    #               0.5, (0, 255, 0), 2)
+                # if frame is read correctly ret is True
+                if not ret:
+                    print("Can't receive frame (stream end?). Exiting ...")
+                    break
+                    # Our operations on the frame come here
+                data, bbox, _ = self.detector.detectAndDecode(frame)
+                # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+                # Display the resulting frame
+                # if bbox is not None:
+                #    cv.putText(frame, data, (int(bbox[0][0][0]), int(bbox[0][0][1]) - 10), cv.FONT_HERSHEY_SIMPLEX,
+                #               0.5, (0, 255, 0), 2)
 
-                    if data:
-                        code = data
-                        self.green.on()
-                        # frame = self.rescale_frame(frame, 50)
-                        # image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                        # image = Image.fromarray(image)
-                        # mage = ImageTk.PhotoImage(image)
-                        # self.panel.configure(image=image)
-                        self.controller.sendPayload(data)
-                        data = None
-                        frame = None
-                        sleep(1)
-                        self.green.off()
-                else:
-                    self.red.off()
+                if data:
+                    code = data
+                    self.green.on()
+                    # frame = self.rescale_frame(frame, 50)
+                    # image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
+                    # image = Image.fromarray(image)
+                    # mage = ImageTk.PhotoImage(image)
+                    # self.panel.configure(image=image)
+                    self.controller.sendPayload(data)
+                    data = None
+                    frame = None
+                    sleep(1)
+                    self.green.off()
 
             self.cap.release()
             cv.destroyAllWindows()
@@ -97,7 +93,8 @@ class CameraController:
         except RuntimeError as e:
             print("[INFO] caught a RuntimeError")
 
-    def onClose(self):
-        if self.stopEvent is not None:
-            print("[INFO] closing...")
-            self.stopEvent.set()
+
+def onClose(self):
+    if self.stopEvent is not None:
+        print("[INFO] closing...")
+        self.stopEvent.set()
