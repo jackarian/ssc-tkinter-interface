@@ -1,9 +1,9 @@
 import threading
 from time import sleep
 
-import adafruit_vl53l0x
-import board
-import busio
+# import adafruit_vl53l0x
+# import board
+# import busio
 import cv2 as cv
 from gpiozero import LED
 from gpiozero.pins.pigpio import PiGPIOFactory
@@ -24,9 +24,10 @@ class CameraController:
         self.factory = PiGPIOFactory(host='192.168.178.59')
         self.red = LED(19, pin_factory=self.factory)
         self.green = LED(26, pin_factory=self.factory)
-        self.i2c = busio.I2C(board.SCL, board.SDA)
-        self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
-        self.sensor.measurement_timing_budget = 200000
+        self.webcamActive = True
+        #self.i2c = busio.I2C(board.SCL, board.SDA)
+        #self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
+        #self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
         self.startCapture()
 
@@ -39,7 +40,7 @@ class CameraController:
 
     def startCapture(self):
         self.cap = cv.VideoCapture(self.pipe)
-        self.detector = cv.QRCodeDetector()
+        # self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame
         self.stopEvent = threading.Event()
@@ -57,7 +58,7 @@ class CameraController:
                 # grab the frame from the video stream and resize it to
                 # have a maximum width of 300 pixels
                 ret, frame = self.cap.read()
-                if self.sensor.range < 1000:
+                if self.webcamActive:
                     self.red.on()
 
                     # if frame is read correctly ret is True
