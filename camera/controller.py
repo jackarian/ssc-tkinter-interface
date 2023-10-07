@@ -5,8 +5,11 @@ from time import sleep
 # import board
 # import busio
 import cv2 as cv
-from gpiozero import LED
-from gpiozero.pins.pigpio import PiGPIOFactory
+from pyzbar import pyzbar
+import numpy as np
+
+# from gpiozero import LED
+# from gpiozero.pins.pigpio import PiGPIOFactory
 
 from rest.restclient import SscClient
 
@@ -21,9 +24,9 @@ class CameraController:
                     "appsink "
         self.cap = None
         self.detector = None
-        self.factory = PiGPIOFactory(host='192.168.178.59')
-        self.red = LED(19, pin_factory=self.factory)
-        self.green = LED(26, pin_factory=self.factory)
+        #self.factory = PiGPIOFactory(host='192.168.178.59')
+        #self.red = LED(19, pin_factory=self.factory)
+        #self.green = LED(26, pin_factory=self.factory)
         self.webcamActive = True
         #self.i2c = busio.I2C(board.SCL, board.SDA)
         #self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
@@ -39,13 +42,22 @@ class CameraController:
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cap = cv.VideoCapture(self.pipe)
+        self.cap = cv.VideoCapture(0)
         # self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame
         self.stopEvent = threading.Event()
         self.thread = threading.Thread(target=self.videoLoop, args=())
         self.thread.start()
+
+    def decode(self,frame):
+        # Find barcodes and QR codes
+        decodedObjects = pyzbar.decode(frame)
+        # Print results
+        for obj in decodedObjects:
+            print('Type : ', obj.type)
+            print('Data : ', obj.data, '\n')
+        return decodedObjects
 
     def videoLoop(self):
         # DISCLAIMER:
@@ -59,35 +71,37 @@ class CameraController:
                 # have a maximum width of 300 pixels
                 ret, frame = self.cap.read()
                 if self.webcamActive:
-                    self.red.on()
+                    #self.red.on()
 
                     # if frame is read correctly ret is True
                     if not ret:
                         print("Can't receive frame (stream end?). Exiting ...")
                         break
                         # Our operations on the frame come here
-                    data, bbox, _ = self.detector.detectAndDecode(frame)
+                    decodedObjects = self.decode(frame)
+                    for decodedObject in decodedObjects:
+                        x = decodedObject.rect.left
+                        y = decodedObject.rect.top
+                        print(x, y)
+                        print('Type : ', decodedObject.type)
+                        print('Data : ', decodedObject.data, '\n')
+                        response = self.controller.sendPayload(decodedObject.data.decode("utf-8"))
+                        if response.status_code == 200:
+                            print("Green on")
+                        else:
+                            print("Red on")
                     # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
                     # Display the resulting frame
                     # if bbox is not None:
                     #    cv.putText(frame, data, (int(bbox[0][0][0]), int(bbox[0][0][1]) - 10), cv.FONT_HERSHEY_SIMPLEX,
                     #               0.5, (0, 255, 0), 2)
 
-                    if data:
-                        code = data
-                        self.green.on()
-                        # frame = self.rescale_frame(frame, 50)
-                        # image = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
-                        # image = Image.fromarray(image)
-                        # mage = ImageTk.PhotoImage(image)
-                        # self.panel.configure(image=image)
-                        self.controller.sendPayload(data)
-                        data = None
-                        frame = None
-                        sleep(1)
-                        self.green.off()
+
+                    #self.green.off()
+
                 else:
-                    self.red.off()
+                    #self.red.off()
+                    print("Red on")
 
             self.cap.release()
             cv.destroyAllWindows()

@@ -12,6 +12,8 @@ from application import img as images
 from camera.controller import CameraController
 from rest.restclient import SscClient
 from pathlib import Path
+from server.mygpio import MyGpio
+from server.server import Server
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
@@ -48,6 +50,8 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.cam = CameraController(self.cameralbl, self.sscClient)
         self._createBinding()
+        self.server = Server(MyGpio('test'))
+        self.server.run()
 
     def _createCanvas(self, frame, width, height, start=100):
         self.cwidth = width - 10
@@ -141,10 +145,8 @@ class Application(ttk.Frame, observer.ConnectionObserver):
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             self.config = yaml.load(file, Loader=yaml.FullLoader)
-            # for item, doc in config.items():
-            #    print(item, ":", len(doc))
-            # self.header.set(config['header']['text'])
-            # self.sheader.set(config['subheader']['text'])
+            for item, doc in self.config.items():
+                print(item, ":", doc)
 
     def _buildfooter(self, frame, width, height):
         self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)

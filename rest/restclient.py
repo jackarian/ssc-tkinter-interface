@@ -26,25 +26,7 @@ class SscClient:
         return requests.get(self.host + '/api/plc')
 
     def sendPayload(self, token=None, plc=None):
-        payload: str = json.dumps({
-            "MID": 1,
-            "UID": self.plc,
-            "MV": "1",
-            "ST": 1,
-            "FIFO": [
-                {
-                    "Date": "2021-01-31",
-                    "Value": {
-                        "ip_address": "10.10.0.156",
-                        "timeStamp": " ",
-                        "token": "" + token + ""
-                    }
-                }
-            ]
-        })
-
-        response: Response = requests.request("POST", self.host + '/activation', headers=self.header, data=payload)
-
+        response: Response = requests.request("GET", self.host + '/validate/token/'+token, headers=self.header)
         return response
 
 
