@@ -69,7 +69,8 @@ class QrCodeSerialController(QrCodeReader):
             print("[INFO] caught a RuntimeError %s", e)
 
     def onClose(self):
-        self.reader.close()
+        if self.reader is not None:
+            self.reader.close()
 
 
 if __name__ == '__main__':
