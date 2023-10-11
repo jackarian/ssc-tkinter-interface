@@ -1,23 +1,23 @@
+import json
+from pathlib import Path
+from threading import Thread
 from tkinter import *
-from tkinter import ttk
 from tkinter import Tk
 from tkinter import font
 from tkinter import messagebox
-import json
+from tkinter import ttk
+
 import yaml
-from threading import Thread
-from stomp_ws.client import Client
-from interfaces import observer
+
 from application import img as images
-from camera.controller import CameraController
+from interfaces import observer
+from qr_serial.serial_controller import QrCodeSerialController
 from rest.restclient import SscClient
-from pathlib import Path
-from server.mygpio import MyGpio
-from server.server import Server
+from stomp_ws.client import Client
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780):
+    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780, claz=None):
         ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
         self._configureFromFile()
         self.grid(column=0, row=0)
@@ -48,10 +48,10 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         # self._createWidgets(self.frame, width - 10, height - 80)
         self.connected = FALSE
 
-        self.cam = CameraController(self.cameralbl, self.sscClient)
+        self.cam = claz(self.cameralbl, self.sscClient)
         self._createBinding()
-        self.server = Server(MyGpio('test'))
-        self.server.run()
+        # self.server = Server(MyGpio('test'))
+        # self.server.run()
 
     def _createCanvas(self, frame, width, height, start=100):
         self.cwidth = width - 10
@@ -211,6 +211,6 @@ if __name__ == '__main__':
     root.iconphoto(True, icon)
     app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                       "/info",
-                      "http://service.local:8080/ssc", 1366, 768)
+                      "http://service.local:8080/ssc", 1366, 768, QrCodeSerialController)
     root.title('SSC')
     app.mainloop()

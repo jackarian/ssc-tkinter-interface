@@ -8,13 +8,14 @@ import cv2 as cv
 from pyzbar import pyzbar
 import numpy as np
 
+from qrcode.qr_interface import QrCodeReader
 # from gpiozero import LED
 # from gpiozero.pins.pigpio import PiGPIOFactory
 
 from rest.restclient import SscClient
 
 
-class CameraController:
+class CameraController(QrCodeReader):
     def __init__(self, label=None, controller=None):
         self.thread = None
         self.stopEvent = None
@@ -24,13 +25,13 @@ class CameraController:
                     "appsink "
         self.cap = None
         self.detector = None
-        #self.factory = PiGPIOFactory(host='192.168.178.59')
-        #self.red = LED(19, pin_factory=self.factory)
-        #self.green = LED(26, pin_factory=self.factory)
+        # self.factory = PiGPIOFactory(host='192.168.178.59')
+        # self.red = LED(19, pin_factory=self.factory)
+        # self.green = LED(26, pin_factory=self.factory)
         self.webcamActive = True
-        #self.i2c = busio.I2C(board.SCL, board.SDA)
-        #self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
-        #self.sensor.measurement_timing_budget = 200000
+        # self.i2c = busio.I2C(board.SCL, board.SDA)
+        # self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
+        # self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
         self.startCapture()
 
@@ -50,7 +51,7 @@ class CameraController:
         self.thread = threading.Thread(target=self.videoLoop, args=())
         self.thread.start()
 
-    def decode(self,frame):
+    def decode(self, frame):
         # Find barcodes and QR codes
         decodedObjects = pyzbar.decode(frame)
         # Print results
@@ -71,7 +72,7 @@ class CameraController:
                 # have a maximum width of 300 pixels
                 ret, frame = self.cap.read()
                 if self.webcamActive:
-                    #self.red.on()
+                    # self.red.on()
 
                     # if frame is read correctly ret is True
                     if not ret:
@@ -96,11 +97,10 @@ class CameraController:
                     #    cv.putText(frame, data, (int(bbox[0][0][0]), int(bbox[0][0][1]) - 10), cv.FONT_HERSHEY_SIMPLEX,
                     #               0.5, (0, 255, 0), 2)
 
-
-                    #self.green.off()
+                    # self.green.off()
 
                 else:
-                    #self.red.off()
+                    # self.red.off()
                     print("Red on")
 
             self.cap.release()
