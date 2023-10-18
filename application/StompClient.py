@@ -35,19 +35,19 @@ class StompClient(object):
         self.ws_uri = ws_uri.format(server_ip, port_number)
         self.destinations = destinations
 
-    def on_open(ws):
+    def on_open(self):
         """
         Handler when a websocket connection is opened.
         Args:
-          ws(Object): Websocket Object.
+          self(Object): Websocket Object.
         """
         # Iniitial CONNECT required to initialize the server's client registries.
-        ws.send("CONNECT\naccept-version:1.0,1.1,2.0\n\n\x00\n")
+        self.send("CONNECT\naccept-version:1.0,1.1,2.0\n\n\x00\n")
 
         # Subscribing to all required desitnations.
         for destination in self.destinations:
             sub = stomper.subscribe(destination, "clientuniqueId", ack="auto")
-            ws.send(sub)
+            self.send(sub)
 
     def create_connection(self):
         """

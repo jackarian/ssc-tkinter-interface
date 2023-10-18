@@ -1,21 +1,23 @@
+import json
+from pathlib import Path
+from threading import Thread
 from tkinter import *
-from tkinter import ttk
 from tkinter import Tk
 from tkinter import font
 from tkinter import messagebox
-import json
+from tkinter import ttk
+
 import yaml
-from threading import Thread
-from stomp_ws.client import Client
-from interfaces import observer
+
 from application import img as images
-from camera.controller import CameraController
+from interfaces import observer
+from qr_serial.serial_controller import QrCodeSerialController
 from rest.restclient import SscClient
-from pathlib import Path
+from stomp_ws.client import Client
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780):
+    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780, claz=None):
         ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
         self._configureFromFile()
         self.grid(column=0, row=0)
@@ -44,10 +46,13 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self._createHeader(self.frame, width - 10, height - 80)
         self._createCanvas(self.frame, width - 10, height - 80)
         # self._createWidgets(self.frame, width - 10, height - 80)
+        self._buildfooter(self.frame, width - 10, height - 80)
         self.connected = FALSE
 
-        self.cam = CameraController(self.cameralbl, self.sscClient)
+        self.cam = claz(self.cameralbl, self.sscClient)
         self._createBinding()
+        # self.server = Server(MyGpio('test'))
+        # self.server.run()
 
     def _createCanvas(self, frame, width, height, start=100):
         self.cwidth = width - 10
@@ -133,7 +138,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         """
         Costruzione del footer dell'interfaccia
         """
-        # self._buildfooter(frame, width, height)
+        self._buildfooter(frame, width, height)
 
     def _configureFromFile(self):
         home = str(Path.home())
@@ -141,20 +146,20 @@ class Application(ttk.Frame, observer.ConnectionObserver):
             # The FullLoader parameter handles the conversion from YAML
             # scalar values to Python the dictionary format
             self.config = yaml.load(file, Loader=yaml.FullLoader)
-            # for item, doc in config.items():
-            #    print(item, ":", len(doc))
-            # self.header.set(config['header']['text'])
-            # self.sheader.set(config['subheader']['text'])
+            for item, doc in self.config.items():
+                print(item, ":", doc)
 
     def _buildfooter(self, frame, width, height):
-        self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)
-        self.connectBtn.place(x=80, y=height + 1)
+        # self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)
+        # self.connectBtn.place(x=80, y=height + 1)
 
-        self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
+        # self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
+        # self.quitBtn.place(x=0, y=height + 1)
+
+        # self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
+        # self.scanBtn.place(x=161, y=height + 1)
+        self.quitBtn = ttk.Button(self, text="Pulisci Schermo", command=self._clearMessage)
         self.quitBtn.place(x=0, y=height + 1)
-
-        self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
-        self.scanBtn.place(x=161, y=height + 1)
 
     def connect(self):
         if not self.client.connected:
@@ -178,6 +183,10 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
+
+    def _clearMessage(self):
+        self.canvas.itemconfigure(self.cMessageTitle, text="")
+        self.canvas.itemconfigure(self.cMessageBody, text="")
 
     def onConnected(self, frame):
         self.connected = TRUE
@@ -209,6 +218,6 @@ if __name__ == '__main__':
     root.iconphoto(True, icon)
     app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                       "/info",
-                      "http://service.local:8080/ssc", 1366, 768)
+                      "http://service.local:8080/ssc", 1366, 768, QrCodeSerialController)
     root.title('SSC')
     app.mainloop()

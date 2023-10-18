@@ -16,7 +16,7 @@ root = Tk()
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                        "/info",
-                        "http://service.local:8080/ssc",1366, 768)
+                        "http://service.local:8080/ssc",1366, 768, QrCodeSerialController)
 
 root.title('SSC')
 app.mainloop()
