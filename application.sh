@@ -11,12 +11,12 @@ from pathlib import Path
 home = str(Path.home())
 
 from application import main
-
+from qr_serial import serial_controller
 root = Tk()
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                        "/info",
-                        "http://service.local:8080/ssc",1366, 768, QrCodeSerialController)
+                        "http://service.local:8080/ssc",1366, 768, serial_controller.QrCodeSerialController)
 
 root.title('SSC')
 app.mainloop()
