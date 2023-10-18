@@ -46,6 +46,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         self._createHeader(self.frame, width - 10, height - 80)
         self._createCanvas(self.frame, width - 10, height - 80)
         # self._createWidgets(self.frame, width - 10, height - 80)
+        self._buildfooter(self.frame, width - 10, height - 80)
         self.connected = FALSE
 
         self.cam = claz(self.cameralbl, self.sscClient)
@@ -137,7 +138,7 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         """
         Costruzione del footer dell'interfaccia
         """
-        # self._buildfooter(frame, width, height)
+        self._buildfooter(frame, width, height)
 
     def _configureFromFile(self):
         home = str(Path.home())
@@ -149,14 +150,16 @@ class Application(ttk.Frame, observer.ConnectionObserver):
                 print(item, ":", doc)
 
     def _buildfooter(self, frame, width, height):
-        self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)
-        self.connectBtn.place(x=80, y=height + 1)
+        # self.connectBtn = ttk.Button(self, text='Connect', command=self.connect)
+        # self.connectBtn.place(x=80, y=height + 1)
 
-        self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
+        # self.quitBtn = ttk.Button(self, text="Quit", command=self.close)
+        # self.quitBtn.place(x=0, y=height + 1)
+
+        # self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
+        # self.scanBtn.place(x=161, y=height + 1)
+        self.quitBtn = ttk.Button(self, text="Pulisci Schermo", command=self._clearMessage)
         self.quitBtn.place(x=0, y=height + 1)
-
-        self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
-        self.scanBtn.place(x=161, y=height + 1)
 
     def connect(self):
         if not self.client.connected:
@@ -180,6 +183,10 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
+
+    def _clearMessage(self):
+        self.canvas.itemconfigure(self.cMessageTitle, text="")
+        self.canvas.itemconfigure(self.cMessageBody, text="")
 
     def onConnected(self, frame):
         self.connected = TRUE

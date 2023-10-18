@@ -1,5 +1,7 @@
 import threading
+from pathlib import Path
 
+import yaml
 from serial.threaded import ReaderThread, Protocol
 import serial
 from qrcode.qr_interface import QrCodeReader
@@ -26,6 +28,9 @@ class SerialReaderProtocolRaw(Protocol):
                 # print(self.buffer)
                 payload = ''.join(v for v in self.buffer)
                 print(payload)
+                self.listener.sendPayload(payload.rstrip('\r\n'))
+                # print(self.buffer)
+
                 self.buffer = []
 
         except Exception as e:
@@ -36,16 +41,26 @@ class QrCodeSerialController(QrCodeReader):
     def __init__(self, label=None, controller=None):
         self.controller: SscClient = controller
         self.reader: ReaderThread = None
+        self._configureFromFile()
         self.serial: serial.Serial = serial.Serial(
             baudrate=115200,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            port='/dev/ttyUSB1',
+            port='/dev/ttyUSB0',
             timeout=None
         )
         self.thread = None
         self.stopEvent: threading.Event = None
+
+    def _configureFromFile(self):
+        home = str(Path.home())
+        with open(r'' + home + '/config/usb.yaml') as file:
+            # The FullLoader parameter handles the conversion from YAML
+            # scalar values to Python the dictionary format
+            self.config = yaml.load(file, Loader=yaml.FullLoader)
+            for item, doc in self.config.items():
+                print(item, ":", doc)
 
     def startCapture(self):
         # self.stopEvent = threading.Event()
@@ -74,5 +89,5 @@ class QrCodeSerialController(QrCodeReader):
 
 
 if __name__ == '__main__':
-    serial = QrCodeSerialController()
-    serial.startCapture()
+    myserial = QrCodeSerialController()
+    myserial.startCapture()
