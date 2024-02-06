@@ -51,7 +51,8 @@ class CameraController(QrCodeReader):
         self.thread = threading.Thread(target=self.videoLoop, args=())
         self.thread.start()
 
-    def decode(self, frame):
+    @staticmethod
+    def decode(frame):
         # Find barcodes and QR codes
         decodedObjects = pyzbar.decode(frame)
         # Print results

@@ -26,7 +26,7 @@ class SscClient:
         return requests.get(self.host + '/api/plc')
 
     def sendPayload(self, token=None, plc=None):
-        response: Response = requests.request("GET", self.host + '/api/activation/token/'+token, headers=self.header)
+        response: Response = requests.request("GET", self.host + '/api/activation/token/' + token, headers=self.header)
         return response
 
 
