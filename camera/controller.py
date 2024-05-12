@@ -33,7 +33,6 @@ class CameraController(QrCodeReader):
         # self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
         # self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
-        self.startCapture()
 
     @staticmethod
     def rescale_frame(frame, percent=75):
@@ -43,7 +42,7 @@ class CameraController(QrCodeReader):
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cap = cv.VideoCapture(0)
+        self.cap = cv.VideoCapture(self.pipe)
         # self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame

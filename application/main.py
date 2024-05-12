@@ -196,7 +196,6 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
     def scancode(self):
         self.cam.startCapture()
-        pass
 
     def notifyOnClose(self, observable=None, message=None, exception=None):
         self.connected = FALSE
