@@ -16,7 +16,7 @@ root = Tk()
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                        "/info",
-                        "http://service.local:8080/ssc",1366, 768, controller.CameraController)
+                        "http://service.local:8080/ssc",root.winfo_screenwidth(), root.winfo_screenheight(), controller.CameraController)
 
 root.title('SSC')
 app.mainloop()
