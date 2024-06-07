@@ -43,11 +43,11 @@ class QrCodeSerialController(QrCodeReader):
         self.reader: ReaderThread = None
         self._configureFromFile()
         self.serial: serial.Serial = serial.Serial(
-            baudrate=115200,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            port='/dev/ttyUSB0',
+            baudrate=self.config['usb']['baudrate'],
+            bytesize=self.config['usb']['bytesize'],
+            parity=self.config['usb']['parity'],
+            stopbits=self.config['usb']['stopbits'],
+            port=self.config['usb']['port'],
             timeout=None
         )
         self.thread = None

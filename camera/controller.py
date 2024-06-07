@@ -2,30 +2,31 @@ import threading
 from time import sleep
 
 # import adafruit_vl53l0x
-# import board
-# import busio
+#import board
+#import busio
 import cv2 as cv
 from pyzbar import pyzbar
 import numpy as np
 
 from qrcode.qr_interface import QrCodeReader
-# from gpiozero import LED
-# from gpiozero.pins.pigpio import PiGPIOFactory
+from picamera2 import Picamera2
+from gpiozero import LED
+from gpiozero.pins.pigpio import PiGPIOFactory
 
 from rest.restclient import SscClient
 
 
 class CameraController(QrCodeReader):
     def __init__(self, label=None, controller=None):
+        self.fps=30
         self.thread = None
         self.stopEvent = None
         self.frame = None
         self.panel = label
-        self.pipe = "libcamerasrc ! video/x-raw, width=640, height=480, framerate=30/1 ! videoconvert ! videoscale ! " \
-                    "appsink "
         self.cap = None
         self.detector = None
-        # self.factory = PiGPIOFactory(host='192.168.178.59')
+        self.cam = None
+        # self.factory = PiGPIOFactory(host='localhost')
         # self.red = LED(19, pin_factory=self.factory)
         # self.green = LED(26, pin_factory=self.factory)
         self.webcamActive = True
@@ -33,7 +34,6 @@ class CameraController(QrCodeReader):
         # self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
         # self.sensor.measurement_timing_budget = 200000
         self.controller: SscClient = controller
-        self.startCapture()
 
     @staticmethod
     def rescale_frame(frame, percent=75):
@@ -43,7 +43,10 @@ class CameraController(QrCodeReader):
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cap = cv.VideoCapture(0)
+        self.cam = Picamera2() 
+        config = self.cam.create_still_configuration()
+        self.cam.configure(config)
+        self.cam.start()       
         # self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame
@@ -51,7 +54,8 @@ class CameraController(QrCodeReader):
         self.thread = threading.Thread(target=self.videoLoop, args=())
         self.thread.start()
 
-    def decode(self, frame):
+    @staticmethod
+    def decode(frame):
         # Find barcodes and QR codes
         decodedObjects = pyzbar.decode(frame)
         # Print results
@@ -61,24 +65,16 @@ class CameraController(QrCodeReader):
         return decodedObjects
 
     def videoLoop(self):
-        # DISCLAIMER:
-        # I'm not a GUI developer, nor do I even pretend to be. This
-        # try/except statement is a pretty ugly hack to get around
-        # a RunTime error that Tkinter throws due to threading
+        
         try:
             # keep looping over frames until we are instructed to stop
             while not self.stopEvent.is_set():
                 # grab the frame from the video stream and resize it to
                 # have a maximum width of 300 pixels
-                ret, frame = self.cap.read()
+                
                 if self.webcamActive:
                     # self.red.on()
-
-                    # if frame is read correctly ret is True
-                    if not ret:
-                        print("Can't receive frame (stream end?). Exiting ...")
-                        break
-                        # Our operations on the frame come here
+                    frame = self.cam.capture_array("main")                    
                     decodedObjects = self.decode(frame)
                     for decodedObject in decodedObjects:
                         x = decodedObject.rect.left
@@ -86,11 +82,11 @@ class CameraController(QrCodeReader):
                         print(x, y)
                         print('Type : ', decodedObject.type)
                         print('Data : ', decodedObject.data, '\n')
-                        response = self.controller.sendPayload(decodedObject.data.decode("utf-8"))
+                        response = self.controller.opener(decodedObject.data.decode("utf-8"))
                         if response.status_code == 200:
-                            print("Green on")
+                            self.controller.apriporta()
                         else:
-                            print("Red on")
+                            print("Qrcode failure")
                     # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
                     # Display the resulting frame
                     # if bbox is not None:
@@ -103,10 +99,8 @@ class CameraController(QrCodeReader):
                     # self.red.off()
                     print("Red on")
 
-            self.cap.release()
-            cv.destroyAllWindows()
-            self.cap = None
-            self.detector = None
+            self.cam.stop()
+            self.cam = None
             self.stopEvent.set()
 
         except RuntimeError as e:
