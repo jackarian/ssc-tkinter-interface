@@ -43,7 +43,7 @@ class CameraController(QrCodeReader):
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cap = cv.VideoCapture(self.pipe)
+        self.cap = cv.VideoCapture(0)
         # self.detector = cv.QRCodeDetector()
         # start a thread that constantly pools the video sensor for
         # the most recently read frame

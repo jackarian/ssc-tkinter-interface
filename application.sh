@@ -13,10 +13,16 @@ home = str(Path.home())
 from application import main
 from camera import controller
 root = Tk()
+#root.attributes('-fullscreen', True)
+#print(root.winfo_screenwidth())
+#print(root.winfo_screenheight())
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                        "/info",
-                        "http://service.local:8080/ssc",root.winfo_screenwidth(), root.winfo_screenheight(), controller.CameraController)
+                        "http://service.local:8080/ssc",
+                        root.winfo_screenwidth(),
+                        root.winfo_screenheight(),
+                        controller.CameraController)
 
 root.title('SSC')
 app.mainloop()

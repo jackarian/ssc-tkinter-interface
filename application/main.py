@@ -39,9 +39,9 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         Create interface component 
         """
         self.frame = ttk.Frame(self, borderwidth=1, relief="ridge", width=width, height=height - 20)
-        self.highlightFont = font.Font(family='Helvetica', name='appHighlightFont', size=30, weight='bold')
-        self.subheaderFont = font.Font(family='Helvetica', name='subHighlightFont', size=20, weight='bold')
-        self.bodyFont = font.Font(family='Helvetica', name='appBodyFont', size=18, weight='bold')
+        self.highlightFont = font.Font(family='Helvetica', name='appHighlightFont', size=22, weight='bold')
+        self.subheaderFont = font.Font(family='Helvetica', name='subHighlightFont', size=18, weight='bold')
+        self.bodyFont = font.Font(family='Helvetica', name='appBodyFont', size=10, weight='bold')
 
         self._createHeader(self.frame, width - 10, height - 80)
         self._createCanvas(self.frame, width - 10, height - 80)
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     root.winfo_screenwidth()
     app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                       "/info",
-                      "http://service.local:8080/ssc", root.winfo_screenwidth(), root.winfo_screenheight(),
+                      "http://service.local:8080/ssc", 1024, 768,
                       CameraController)
     root.title('SSC')
     app.mainloop()
