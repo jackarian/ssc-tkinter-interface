@@ -29,7 +29,7 @@ class CameraController(QrCodeReader):
         # self.factory = PiGPIOFactory(host='localhost')
         # self.red = LED(19, pin_factory=self.factory)
         # self.green = LED(26, pin_factory=self.factory)
-        self.webcamActive = True
+        self.webcamActive = False
         # self.i2c = busio.I2C(board.SCL, board.SDA)
         # self.sensor = adafruit_vl53l0x.VL53L0X(self.i2c)
         # self.sensor.measurement_timing_budget = 200000
@@ -43,16 +43,17 @@ class CameraController(QrCodeReader):
         return cv.resize(frame, dim, interpolation=cv.INTER_AREA)
 
     def startCapture(self):
-        self.cam = Picamera2() 
-        config = self.cam.create_still_configuration()
-        self.cam.configure(config)
-        self.cam.start()       
-        # self.detector = cv.QRCodeDetector()
-        # start a thread that constantly pools the video sensor for
-        # the most recently read frame
-        self.stopEvent = threading.Event()
-        self.thread = threading.Thread(target=self.videoLoop, args=())
-        self.thread.start()
+        if not self.webcamActive:
+         self.cam = Picamera2() 
+         config = self.cam.create_still_configuration()
+         self.cam.configure(config)
+         self.cam.start()       
+         # self.detector = cv.QRCodeDetector()
+         # start a thread that constantly pools the video sensor for
+         # the most recently read frame
+         self.stopEvent = threading.Event()
+         self.thread = threading.Thread(target=self.videoLoop, args=())
+         self.thread.start()
 
     @staticmethod
     def decode(frame):
@@ -71,7 +72,7 @@ class CameraController(QrCodeReader):
             while not self.stopEvent.is_set():
                 # grab the frame from the video stream and resize it to
                 # have a maximum width of 300 pixels
-                
+                self.webcamActive  = True
                 if self.webcamActive:
                     # self.red.on()
                     frame = self.cam.capture_array("main")                    

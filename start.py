@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import os
 
@@ -13,8 +12,8 @@ home = str(Path.home())
 from application import main
 from camera import controller
 root = Tk()
-#root.attributes('-fullscreen', True)
-#print(root.winfo_screenwidth())
+root.attributes('-fullscreen', True)
+print(root.winfo_screenwidth())
 print(root.winfo_screenheight())
 app = main.Application(root,
                        "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
@@ -25,5 +24,7 @@ app = main.Application(root,
                         controller.CameraController)
 
 root.title('SSC')
-app.mainloop()
-
+try:
+  app.mainloop()
+except Exception as e:
+  print(e)

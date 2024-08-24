@@ -14,76 +14,95 @@ from interfaces import observer
 from qr_serial.serial_controller import QrCodeSerialController
 from rest.restclient import SscClient
 from stomp_ws.client import Client
+from components import login
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780, claz=None):
-        ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
-        self._configureFromFile()
-        self.grid(column=0, row=0)
-        self.client = Client(ws_uri, self)
-        self.sscClient = SscClient(service_uri, self.config['plc']['id'])
-        self.topic = topic
-        self.logo = PhotoImage(file=images.LOGO)
-        self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
-        self.logoMultiverso = PhotoImage(file=images.LOGO_MULTIVERSO)
-        self.cameralbl = None
-        self.canvas = None
-        self.messageType = {
-            0: '#FC1919',
-            1: '#2981c3',
-            2: '#2981c3'
-        }
-        master.iconphoto(True, self.logo)
-        """
-        Create interface component 
-        """
-        self.frame = ttk.Frame(self, borderwidth=1, relief="ridge", width=width, height=height - 20)
-        self.highlightFont = font.Font(family='Helvetica', name='appHighlightFont', size=30, weight='bold')
-        self.subheaderFont = font.Font(family='Helvetica', name='subHighlightFont', size=20, weight='bold')
-        self.bodyFont = font.Font(family='Helvetica', name='appBodyFont', size=18, weight='bold')
+    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=800, height=480, claz=None):
+        try:
+            super().__init__(master, borderwidth=5, relief="ridge", width=width, height=height)
+            self._configureFromFile()
+            self.grid(column=0, row=0)
+            self.client = Client(ws_uri, self)
+            self.sscClient = SscClient(service_uri, self.config['plc']['id'])
+            self.topic = topic
+            self.logo = PhotoImage(file=images.LOGO)
+            self.logoLepark = PhotoImage(file=images.LOGO_LEPARK)
+            self.logoMultiverso = PhotoImage(file=images.LOGO_MULTIVERSO)
+            self.cameralbl = None
+            self.canvas = None
+            self.messageType = {
+                0: '#FC1919',
+                1: '#2981c3',
+                2: '#2981c3'
+            }
+            master.iconphoto(True, self.logo)
+            """
+            Create interface component 
+            """
+            
+            self.highlightFont = font.Font(family='Liberation Sans', name='appHighlightFont', size=30, weight='bold')
+            self.subheaderFont = font.Font(family='Liberarion Sans', name='messageFont', size=9, weight='bold')
+            self.bodyFont      = font.Font(family='Liberation Sans', name='appBodyFont', size=18, weight='bold')
+           
+            self.frame = ttk.Frame(self, borderwidth=0, relief="ridge", width=width, height=height)
+            self._createHeader(self.frame, width - 10, height - 80)
+            self._createCanvas(self.frame, width - 10, height - 80)
+            # self._createWidgets(self.frame, width - 10, height - 80)
+            self._buildfooter(self.frame, width - 10, height - 80)
+            self.connected = FALSE
+            if claz is not None:
+                self.cam = claz(self.cameralbl, self.sscClient)
+            self._createBinding()
+            self.canvas.itemconfigure(self.cMessageTitle, text="Header")
+            self.canvas.itemconfigure(self.cMessageBody, text="Body")
+            self.canvas.itemconfigure(self.cHeader, text=self.config['header']['text'])
+            self.canvas.itemconfigure(self.cBody, text=self.config['subheader']['text'])
+            self.pack()
+            # self.server = Server(MyGpio('test'))
+            # self.server.run()
+        except Exception as e:
+                print(e)
+       
 
-        self._createHeader(self.frame, width - 10, height - 80)
-        self._createCanvas(self.frame, width - 10, height - 80)
-        # self._createWidgets(self.frame, width - 10, height - 80)
-        self._buildfooter(self.frame, width - 10, height - 80)
-        self.connected = FALSE
-
-        self.cam = claz(self.cameralbl, self.sscClient)
-        self._createBinding()
-        # self.server = Server(MyGpio('test'))
-        # self.server.run()
-
-    def _createCanvas(self, frame, width, height, start=100):
+    def _createCanvas(self, frame, width, height, start=10):
         self.cwidth = width - 10
-        self.cheight = height - 10
-        self.canvas = Canvas(frame, width=self.cwidth / 2, height=self.cheight)
-        self.canvas.place(x=width // 2 - (self.cwidth // 4), y=start + 200)
-        # print(' Width  canvas: %s' % (self.cwidth / 2))
-        # print('Width sub  %s: ' % ((self.cwidth / 2 - 10) / 2))
+        self.cheight = height//2
+        self.canvas = Canvas(frame, width=self.cwidth / 2, height=self.cheight,borderwidth=0, relief="ridge")
+        self.canvas.place(x=width // 2 - (self.cwidth // 4), y=start+100)
+        
         xpos = (self.cwidth / 2) - ((self.cwidth / 2 - 10) / 2)
-        # print(' Text position inside canvas: %s' % xpos)
-        self.cMessageTitle = self.canvas.create_text(xpos, 20,
+        self.cHeader = self.canvas.create_text(xpos, 20,
                                                      width=self.cwidth / 2 - 10,
-                                                     font='appBodyFont', fill='#2981c3', justify='center')
-        self.cMessageBody = self.canvas.create_text(xpos, 100,
+                                                     font='appHighlightFont', fill='#2981c3', justify='center')
+        self.cBody = self.canvas.create_text(xpos, 70,
                                                     width=self.cwidth / 2 - 10,
                                                     font='appBodyFont', fill='#2981c3', justify='center')
+      
+        self.cMessageTitle = self.canvas.create_text(xpos, 120,
+                                                     width=self.cwidth / 2 - 10,
+                                                     font='appBodyFont', fill='#2981c3', justify='center')
+        self.cMessageBody = self.canvas.create_text(xpos, 170,
+                                                    width=self.cwidth / 2 - 10,
+                                                    font='messageFont', fill='#2981c3', justify='center')
+        
 
     def _createBinding(self):
 
         self.master.bind('<Control-Up>', lambda e: self.connect())
         self.master.bind('<Control-Left>', lambda e: self.close())
         self.master.bind('<Control-Down>', lambda e: self.scancode())
+        self.master.bind('<Control-Right>', lambda e: self._showLogin())
 
     def _createHeader(self, frame, width, height, start=100):
+
         frame.place(x=1, y=1, width=width, height=height)
         self.logoLabel = ttk.Label(self,
                                    image=self.logoMultiverso,
                                    compound=LEFT)
         self.logoLabel.place(x=(width // 2) - 50, y=2)
-
         # Create the application variable.
+        '''
         self.header = StringVar()
         self.header.set(self.config['header']['text'])
 
@@ -96,50 +115,22 @@ class Application(ttk.Frame, observer.ConnectionObserver):
                                    foreground='#2981c3')
         self.headerlbl.place(x=(width // 2) - self.highlightFont.measure(self.config['header']['text']) // 2,
                              y=start + 50)
-
+        
         self.sheaderlbl = ttk.Label(frame, width=width // 2,
                                     textvariable=self.sheader,
                                     justify='center',
                                     font=self.subheaderFont,
-                                    foreground='#2981c3')
-
+                                    foreground='#2981c3')        
         self.sheaderlbl.place(x=(width // 2) - self.subheaderFont.measure(self.config['subheader']['text']) // 2,
-                              y=start + 100)
+                              y=start + 100)        
+        '''
+        
+    def _showLogin(self):
+        loginDialog = login.LoginDialog(self.master,'Login','errors')
+        print(loginDialog._user)
 
-    def _createWidgets(self, frame, width, height, start=100):
-
-        self.titleText = StringVar()
-        self.titleText.set("")
-
-        # Set it to some value.
-        self.bodyText = StringVar()
-        self.bodyText.set("")
-
-        self.titlelbl = ttk.Label(frame, width=width // 2,
-                                  textvariable=self.titleText,
-                                  justify='center',
-                                  font=self.highlightFont)
-
-        self.titlelbl.place(x=(width // 2) - (width // 4), y=start + 150)
-
-        self.bodylbl = ttk.Label(frame,
-                                 width=width // 2,
-                                 textvariable=self.bodyText,
-                                 justify='center',
-                                 font=self.bodyFont)
-
-        self.bodylbl.place(x=(width // 2) - (width // 4) - 100, y=start + 200)
-
-        self.cameralbl = ttk.Label(frame,
-                                   width=width // 2,
-                                   )
-
-        self.cameralbl.place(x=(width // 2) - (width // 4) - 100, y=400)
-        """
-        Costruzione del footer dell'interfaccia
-        """
-        self._buildfooter(frame, width, height)
-
+         
+    
     def _configureFromFile(self):
         home = str(Path.home())
         with open(r'' + home + '/config/gui.yaml') as file:
@@ -180,7 +171,6 @@ class Application(ttk.Frame, observer.ConnectionObserver):
         message = json.loads(frame.body)
         self.canvas.itemconfigure(self.cMessageTitle, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageTitle, text=message['title'])
-
         self.canvas.itemconfigure(self.cMessageBody, fill=self.messageType[message['type']])
         self.canvas.itemconfigure(self.cMessageBody, text=message['body'])
 
@@ -217,6 +207,9 @@ if __name__ == '__main__':
     root.iconphoto(True, icon)
     app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                       "/info",
-                      "http://service.local:8080/ssc", 1366, 768, QrCodeSerialController)
+                      "http://service.local:8080/ssc",
+                       root.winfo_screenmmwidth(), 
+                       root.winfo_screenheight(), 
+                       QrCodeSerialController)
     root.title('SSC')
     app.mainloop()

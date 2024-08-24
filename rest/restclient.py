@@ -36,15 +36,11 @@ class SscClient:
             return response
         
     def opener(self, token=None, plc=None):
-        try:
-          print(self.host + '/validate/token/' + token)
-          response: Response = requests.get(self.host + '/validate/token/' + token)
-          print(response)
+        try:          
+          response: Response = requests.get(self.host + '/validate/token/' + token)          
           return response
         
-        except Exception as ex:
-            print("Failure service conenntion ")
-            print(ex)
+        except Exception as ex:                        
             response = Response
             response.status_code = 500
             return response
@@ -60,8 +56,8 @@ class SscClient:
 if __name__ == '__main__':
     client = SscClient('http://service.local:8080/ssc', 9900001)
     ## client.apriporta()
-    response = client.opener('2a3851a9a3955fb7525564e3e4306b368c32b8131b572361009cba884e945ad7')
-    print(response)
+    ##response = client.opener('2a3851a9a3955fb7525564e3e4306b368c32b8131b572361009cba884e945ad7')
+    ##print(response)
     ##try:
         ##response = client.getPlc()
         ##payload = response.json()
