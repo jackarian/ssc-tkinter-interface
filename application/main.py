@@ -11,14 +11,14 @@ import yaml
 
 from application import img as images
 from interfaces import observer
-from qr_serial.serial_controller import QrCodeSerialController
 from rest.restclient import SscClient
 from stomp_ws.client import Client
+from camera.controller import CameraController
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
     def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=1366, height=780, claz=None):
-        ttk.Frame.__init__(self, master, borderwidth=5, relief="ridge", width=width, height=height)
+        ttk.Frame.__init__(self, master, borderwidth=0, relief="ridge", width=width, height=height)
         self._configureFromFile()
         self.grid(column=0, row=0)
         self.client = Client(ws_uri, self)
@@ -215,8 +215,11 @@ if __name__ == '__main__':
     root = Tk()
     icon = PhotoImage(file=images.LOGO)
     root.iconphoto(True, icon)
+    root.winfo_screenheight()
+    root.winfo_screenwidth()
     app = Application(root, "ws://service.local:8080/ssc/prenostazione-risorse/websocket",
                       "/info",
-                      "http://service.local:8080/ssc", 1366, 768, QrCodeSerialController)
+                      "http://service.local:8080/ssc", root.winfo_screenwidth(), root.winfo_screenheight(),
+                      CameraController)
     root.title('SSC')
     app.mainloop()
