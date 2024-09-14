@@ -83,9 +83,10 @@ class CameraController(QrCodeReader):
                         print(x, y)
                         print('Type : ', decodedObject.type)
                         print('Data : ', decodedObject.data, '\n')
-                        response = self.controller.opener(decodedObject.data.decode("utf-8"))
+                        response = self.controller.validate(decodedObject.data.decode("utf-8"))
                         if response.status_code == 200:
                             self.controller.apriporta()
+                            print("Apri Porta")
                         else:
                             print("Qrcode failure")
                     # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)

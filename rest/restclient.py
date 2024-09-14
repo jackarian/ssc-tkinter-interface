@@ -3,12 +3,16 @@ import json
 
 from requests import Response
 
+from opener.opener_interface import OpenerFacade
+from opener.opera_lock_operner import OperaLockOpenerFacade
+
 
 class SscClient:
     def __init__(self, host, plc):
         self.host = host
         self.plc = plc
         self.header = self.getHeader()
+        self.opener: OpenerFacade = OperaLockOpenerFacade()
 
     @staticmethod
     def getHeader():
@@ -35,7 +39,7 @@ class SscClient:
             response.status_code = 500
             return response
         
-    def opener(self, token=None, plc=None):
+    def validate(self, token=None, plc=None):
         try:          
           response: Response = requests.get(self.host + '/validate/token/' + token)          
           return response
@@ -45,12 +49,30 @@ class SscClient:
             response.status_code = 500
             return response
         
-    def apriporta(self):
+    def apriportaNuki(self):
         try:
           response: Response = requests.request("POST",'https://api.nuki.io/smartlock/18144720508/action/unlock',headers=self.header)
+          return response
+        
         except Exception as ex:
             response = Response
             response.status_code = 500
+            response.reason = ex
+            return response
+          
+
+    def apriporta(self):
+        try:
+          self.opener.unlock()
+          response = Response
+          response.status_code = 200
+          return response
+        
+        except Exception as ex:
+            response = Response
+            response.status_code = 500
+            response.reason = ex
+            return response
 
 
 if __name__ == '__main__':
