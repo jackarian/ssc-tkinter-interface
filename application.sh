@@ -24,6 +24,6 @@ app = main.Application(root,
                         root.winfo_screenheight(), 
                         controller.CameraController)
 
-root.title('SSC')
+root.title('Padova Music')
 app.mainloop()
 
