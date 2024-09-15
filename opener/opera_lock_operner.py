@@ -1,5 +1,5 @@
 from  opener.opener_interface import OpenerFacade
-from RPi import GPIO
+from  gpiozero import LED
 import time
 
 class OperaLockOpenerFacade(OpenerFacade):
@@ -7,18 +7,23 @@ class OperaLockOpenerFacade(OpenerFacade):
     def __init__(self):        
         self.pin = 26
         self.time_to_wait = 5
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.pin,GPIO.OUT)
-        GPIO.output(self.pin,GPIO.LOW)
-
+        self.led = LED(self.pin)
+        self.led.off()
+        
     def lock(self, observable=None):
         pass
 
     def unlock(self, observable=None):
-        GPIO.output(self.pin,GPIO.HIGH);
-        time.sleep(self.time_to_wait);
-        GPIO.output(self.pin,GPIO.LOW	);
+        self.led.on()
+        time.sleep(self.time_to_wait)
+        self.led.off()
 
 if __name__ == '__main__':
+   import sys
+   import os
+   SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+   sys.path.append(os.path.dirname(SCRIPT_DIR))
+   from pathlib import Path
+   home = str(Path.home())
    opner  = OperaLockOpenerFacade()
    opner.unlock()
