@@ -13,7 +13,7 @@ home = str(Path.home())
 from application import main
 from camera import controller
 root = Tk()
-root.attributes('-fullscreen',False)
+root.attributes('-fullscreen',True)
 #print(root.winfo_screenwidth())
 print(root.winfo_screenheight())
 app = main.Application(root,

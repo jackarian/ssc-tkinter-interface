@@ -18,7 +18,7 @@ from components import login
 
 
 class Application(ttk.Frame, observer.ConnectionObserver):
-    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=800, height=480, claz=None):
+    def __init__(self, master=None, ws_uri=None, topic=None, service_uri=None, width=800, height=480, claz = None):
         try:
             super().__init__(master, borderwidth=5, relief="ridge", width=width, height=height)
             self._configureFromFile()
@@ -48,19 +48,18 @@ class Application(ttk.Frame, observer.ConnectionObserver):
             self.frame = ttk.Frame(self, borderwidth=0, relief="ridge", width=width, height=height)
             self._createHeader(self.frame, width - 10, height - 80)
             self._createCanvas(self.frame, width - 10, height - 80)
-            # self._createWidgets(self.frame, width - 10, height - 80)
+            
             self._buildfooter(self.frame, width - 10, height - 80)
             self.connected = FALSE
             if claz is not None:
                 self.cam = claz(self.cameralbl, self.sscClient)
             self._createBinding()
-            self.canvas.itemconfigure(self.cMessageTitle, text="Header")
-            self.canvas.itemconfigure(self.cMessageBody, text="Body")
+         
             self.canvas.itemconfigure(self.cHeader, text=self.config['header']['text'])
             self.canvas.itemconfigure(self.cBody, text=self.config['subheader']['text'])
             self.pack()
-            # self.server = Server(MyGpio('test'))
-            # self.server.run()
+            
+            
         except Exception as e:
                 print(e)
        
@@ -149,8 +148,9 @@ class Application(ttk.Frame, observer.ConnectionObserver):
 
         # self.scanBtn = ttk.Button(self, text='Scan', command=self.scancode)
         # self.scanBtn.place(x=161, y=height + 1)
-        self.quitBtn = ttk.Button(self, text="Pulisci Schermo", command=self._clearMessage)
-        self.quitBtn.place(x=0, y=height + 1)
+        #self.quitBtn = ttk.Button(self, text="Pulisci Schermo", command=self._clearMessage)
+        #self.quitBtn.place(x=0, y=height + 1)
+        pass
 
     def connect(self):
         if not self.client.connected:

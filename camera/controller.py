@@ -2,8 +2,8 @@ import threading
 from time import sleep
 
 # import adafruit_vl53l0x
-#import board
-#import busio
+import board
+# import busio
 import cv2 as cv
 from pyzbar import pyzbar
 import numpy as np
@@ -89,6 +89,7 @@ class CameraController(QrCodeReader):
                             print("Apri Porta")
                         else:
                             print("Qrcode failure")
+                            self.controller.apriporta()
                     # gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
                     # Display the resulting frame
                     # if bbox is not None:

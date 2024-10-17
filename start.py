@@ -8,11 +8,10 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 from pathlib import Path
 home = str(Path.home())
-
 from application import main
 from camera import controller
 root = Tk()
-root.attributes('-fullscreen', False)
+root.attributes('-fullscreen',False)
 print(root.winfo_screenwidth())
 print(root.winfo_screenheight())
 app = main.Application(root,

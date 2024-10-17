@@ -3,8 +3,8 @@ import json
 
 from requests import Response
 
-from opener.opener_interface import OpenerFacade
-from opener.opera_lock_operner import OperaLockOpenerFacade
+#from opener.opener_interface import OpenerFacade
+#from opener.opera_lock_operner import OperaLockOpenerFacade
 
 
 class SscClient:
@@ -12,7 +12,7 @@ class SscClient:
         self.host = host
         self.plc = plc
         self.header = self.getHeader()
-        self.opener: OpenerFacade = OperaLockOpenerFacade()
+        #self.opener: OpenerFacade = OperaLockOpenerFacade()
 
     @staticmethod
     def getHeader():
@@ -63,7 +63,8 @@ class SscClient:
 
     def apriporta(self):
         try:
-          self.opener.unlock()
+          ## self.opener.unlock()
+          response: Response = requests.request("GET","http://server.door/open")
           response = Response
           response.status_code = 200
           return response

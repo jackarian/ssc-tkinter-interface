@@ -1,22 +1,37 @@
 from  opener.opener_interface import OpenerFacade
 from  gpiozero import LED
+from singleton_decorator import singleton
 import time
+
 
 class OperaLockOpenerFacade(OpenerFacade):
     
     def __init__(self):        
         self.pin = 26
-        self.time_to_wait = 5
+        self.time_to_wait = 2 
         self.led = LED(self.pin)
         self.led.off()
         
     def lock(self, observable=None):
-        pass
+        try:
+            self.led.off()
+        except Exception as e:
+            pass
 
     def unlock(self, observable=None):
-        self.led.on()
-        time.sleep(self.time_to_wait)
-        self.led.off()
+        try:
+           self.led.on()
+           time.sleep(self.time_to_wait)
+           self.led.off()
+        except Exception as e:
+            pass
+
+    def unlockForever(self, observable=None):
+        try:
+            self.led.on()
+        except Exception as e:
+            pass
+        
 
 if __name__ == '__main__':
    import sys
@@ -27,3 +42,4 @@ if __name__ == '__main__':
    home = str(Path.home())
    opner  = OperaLockOpenerFacade()
    opner.unlock()
+
